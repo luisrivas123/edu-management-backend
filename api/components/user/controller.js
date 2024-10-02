@@ -1,88 +1,87 @@
 const nanoid = require('nanoid')
 const auth = require('../auth')
 
-const TABLA = 'user';
+const TABLA = 'user'
 
 module.exports = function (injectedStore) {
-    let store = injectedStore;
-    if (!store) {
-        store = require('../../../store/mysql')
+  let store = injectedStore
+  if (!store) {
+    store = require('../../../store/mysql')
+  }
+
+  function list() {
+    return store.list(TABLA)
+  }
+
+  function get(id) {
+    return store.get(TABLA, id)
+  }
+
+  async function create(body) {
+    const user = {
+      name: body.name,
+      username: body.username,
+      email: body.email
     }
 
-    function list() {
-        return store.list(TABLA);
+    if (body.id) {
+      user.id = body.id
+    } else {
+      user.id = nanoid()
     }
 
-    function get(id) {
-        return store.get(TABLA, id)
+    if (body.password || body.username) {
+      await auth.create({
+        id: user.id,
+        username: user.username,
+        password: body.password
+      })
+    }
+    return store.insert(TABLA, user)
+  }
+
+  function update(body) {
+    const user = {
+      name: body.name,
+      username: body.username,
+      email: body.email
     }
 
-    async function create(body) {
-        const user = {
-            name: body.name,
-            username: body.username,
-            email: body.email,
-        }
-
-        if (body.id) {
-            user.id = body.id;
-        } else {
-            user.id = nanoid();
-        }
-
-        if (body.password || body.username) {
-            await auth.create({
-                id: user.id,
-                username: user.username,
-                password: body.password,
-            })
-        }
-
-        return store.insert(TABLA, user)
+    if (body.id) {
+      user.id = body.id
+    } else {
+      user.id = nanoid()
     }
 
-    function update(body) {
-        const user = {
-            name: body.name,
-            username: body.username,
-            email: body.email,
-        }
+    return store.update(TABLA, user)
+  }
 
-        if (body.id) {
-            user.id = body.id;
-        } else {
-            user.id = nanoid();
-        }
+  function deleteuser(id) {
+    return store.deleteuser(TABLA, id)
+  }
 
-        return store.update(TABLA, user);
-    }
+  function courseAdd(from, to) {
+    return store.insert(TABLA + '_course', {
+      user_id: from,
+      course_id: to
+    })
+  }
 
-    function deleteuser(id) {
-        return store.deleteuser(TABLA, id)
-    }
+  async function courseList(user) {
+    const join = {}
+    join['course'] = 'course_id' // { user: 'user_to' }
+    const query = { user_id: user }
 
-    function courseAdd(from, to) {
-        return store.insert(TABLA + '_course', {
-            user_id: from,
-            course_id: to,
-        });
-    }
+    return await store.query(TABLA + '_course', query, join)
+  }
 
-    async function courseList(user) {
-        const join = {}
-        join['course'] = 'course_id'; // { user: 'user_to' }
-        const query = { user_id: user }
-		
-		return await store.query(TABLA + '_course', query, join)
-	}
-
-    return {
-        list,
-        get,
-        create,
-        update,
-        courseAdd,
-        courseList,
-        deleteuser,
-    }
+  return {
+    list,
+    get,
+    create,
+    update,
+    courseAdd,
+    courseList,
+    deleteuser
+  }
 }
