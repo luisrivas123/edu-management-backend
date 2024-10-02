@@ -15,7 +15,7 @@ let connection
 function handleCon() {
   connection = mysql.createConnection(dbconf)
 
-  connection.connect(err => {
+  connection.connect((err) => {
     if (err) {
       console.error('[db err]', err)
       setTimeout(handleCon, 2000)
@@ -24,7 +24,7 @@ function handleCon() {
     }
   })
 
-  connection.on('error', err => {
+  connection.on('error', (err) => {
     console.error('[db err]', err)
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
       handleCon()
