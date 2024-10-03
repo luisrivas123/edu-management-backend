@@ -17,15 +17,6 @@ CREATE TABLE user (
 	PRIMARY KEY (id)
 );
 
-CREATE TABLE `mystore`.`user` (
-	`id` VARCHAR(32) NOT NULL , 
-	`username` VARCHAR(32) NOT NULL , 
-	`name` VARCHAR(64) NOT NULL , 
-	`email` VARCHAR(128) NOT NULL , 
-	`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , 
-	PRIMARY KEY (`id`(32))
-)
-
 -- Crear tabla auth
 DROP TABLE IF EXISTS auth;
 
